@@ -292,14 +292,18 @@ def build_studies(rw: pd.DataFrame) -> dict:
             [{"year": y, "n": int(c)} for y, c in ts_counter.items()],
             key=lambda x: x["year"],
         )
+        y_o = meta.get("year_o")
+        y_r = meta.get("year_r")
+        y_o = int(y_o) if y_o is not None and not (isinstance(y_o, float) and np.isnan(y_o)) else None
+        y_r = int(y_r) if y_r is not None and not (isinstance(y_r, float) and np.isnan(y_r)) else None
         studies[doi] = {
             "doi": doi,
             "title": str(meta.get("title") or "").strip(),
             "author": short_authors(meta.get("author") or ""),
-            "year": meta.get("year_o"),
+            "year": y_o,
             "journal": str(meta.get("journal") or "").strip(),
             "publisher": str(meta.get("publisher") or "").strip(),
-            "retraction_year": meta.get("year_r"),
+            "retraction_year": y_r,
             "retraction_doi": meta.get("retraction_doi"),
             "nature": str(meta.get("nature") or "").strip(),
             "reasons": short_reasons(meta.get("reason")),
@@ -326,7 +330,11 @@ def build_panel(studies: dict) -> pd.DataFrame:
         py = s.get("year")
         if ty is None or py is None:
             continue
-        cite_by_year = {t["year"]: t["n"] for t in s["timeline"]}
+        try:
+            ty = int(ty); py = int(py)
+        except (TypeError, ValueError):
+            continue
+        cite_by_year = {int(t["year"]): int(t["n"]) for t in s["timeline"]}
         # window from publication year to current year (constrained to event window vs ty)
         lo_year = min(py, ty + EVENT_WINDOW[0])
         hi_year = min(CURRENT_YEAR, ty + EVENT_WINDOW[1])
