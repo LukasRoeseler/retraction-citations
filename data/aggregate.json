@@ -1,0 +1,4 @@
+{
+  "descriptive": {"event_time": [], "mean_citations": [], "n_units": []},
+  "model": {"event_time": [], "estimate": [], "ci_low": [], "ci_high": [], "att": null, "att_ci": null, "n_units": 0}
+}

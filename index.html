@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Retraction Citation Explorer</title>
+<meta name="description" content="How do retractions affect citations? Explore the Retraction Watch database combined with OpenCitations.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<header class="top-bar">
+  <div class="container top-bar-inner">
+    <a class="brand-mark" href="#"><span>Retraction Citation Explorer</span></a>
+    <nav class="top-nav">
+      <a href="#aggregate">Aggregate impact</a>
+      <a href="#browse">Browse retractions</a>
+      <a href="#about">About</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <h1>How do retractions change citation behaviour?</h1>
+    <p class="lede">
+      This tool combines the <a href="https://gitlab.com/crossref/retraction-watch-data" target="_blank">Retraction&nbsp;Watch database</a>
+      with citation data from <a href="https://opencitations.net" target="_blank">OpenCitations</a> to explore how the
+      retraction of a paper affects subsequent citations.
+    </p>
+
+    <div class="kpi-row" id="kpi-row">
+      <div class="kpi"><div class="kpi-num" id="kpi-total">—</div><div class="kpi-label">Retractions in dataset</div></div>
+      <div class="kpi"><div class="kpi-num" id="kpi-with-doi">—</div><div class="kpi-label">With usable DOI</div></div>
+      <div class="kpi"><div class="kpi-num" id="kpi-with-cit">—</div><div class="kpi-label">Citations fetched</div></div>
+      <div class="kpi"><div class="kpi-num" id="kpi-total-cit">—</div><div class="kpi-label">Total citations</div></div>
+    </div>
+  </div>
+</section>
+
+<main class="container">
+
+  <div id="global-loading" class="loading">Loading data…</div>
+  <div id="global-error" class="alert" hidden></div>
+
+  <!-- =================== AGGREGATE =================== -->
+  <section id="aggregate" class="card" hidden>
+    <div class="card-header">Aggregate impact of retractions</div>
+    <div class="card-body">
+      <p class="muted">
+        Event-study estimates: each retracted paper is aligned at <em>t&nbsp;=&nbsp;0</em>, the year of its retraction.
+        The left panel shows mean citations per year. The right panel shows the log-effect with 95% CIs from a
+        two-way fixed-effects model (study + year, clustered on study).
+      </p>
+
+      <div class="att-callout" id="att-callout"></div>
+
+      <div class="plot-grid">
+        <div class="plot-card">
+          <h3>Citations to the retracted paper</h3>
+          <div id="plot-descr" class="plot"></div>
+        </div>
+        <div class="plot-card">
+          <h3>Event-study (log effect, 95% CI)</h3>
+          <div id="plot-model" class="plot"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== BROWSE =================== -->
+  <section id="browse" class="card" hidden>
+    <div class="card-header">Browse retractions</div>
+    <div class="card-body">
+      <p class="muted">Click any row to see its citation timeline with the retraction year marked.</p>
+
+      <div class="search-row">
+        <input id="search-input" type="search" placeholder="Search title, author, journal, or DOI…">
+        <select id="sort-by">
+          <option value="n_citations">Most cited</option>
+          <option value="year_desc">Newest retraction</option>
+          <option value="year_asc">Oldest retraction</option>
+          <option value="orig_year_desc">Newest original</option>
+          <option value="orig_year_asc">Oldest original</option>
+        </select>
+        <select id="filter-decade">
+          <option value="">All retraction years</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table id="originals-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th class="num">Pub. year</th>
+              <th class="num">Retracted</th>
+              <th>Journal</th>
+              <th class="num">Citations</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </section>
+
+  <!-- =================== ABOUT =================== -->
+  <section id="about" class="card">
+    <div class="card-header">About this tool</div>
+    <div class="card-body about-body">
+      <p>
+        This dashboard combines two open datasets:
+      </p>
+      <ul>
+        <li>The <a href="https://gitlab.com/crossref/retraction-watch-data" target="_blank">Retraction&nbsp;Watch database</a>
+            (maintained by Crossref) — the most comprehensive list of retracted scholarly papers.</li>
+        <li><a href="https://opencitations.net" target="_blank">OpenCitations</a> — open scholarly citation data.</li>
+      </ul>
+      <p>
+        For every retraction in the database that has a usable DOI for the original paper, we pull all incoming
+        citations from OpenCitations (once, cached) and tally them by year. The aggregate event-study aligns each
+        paper at the year it was retracted. The browse table lets you drill into any specific retraction.
+      </p>
+      <p class="muted small">
+        Built in the spirit of the
+        <a href="https://forrt.org/flora-explorer/" target="_blank">FLoRA Citation Impact Explorer</a>.
+      </p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    Data: Retraction&nbsp;Watch (Crossref) · OpenCitations · <span id="last-updated"></span>
+  </footer>
+</main>
+
+<!-- Per-study modal -->
+<div class="modal-backdrop" id="study-modal" hidden>
+  <div class="modal-card">
+    <button class="modal-close" id="modal-close" aria-label="Close">×</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "last_updated": "2026-05-22T00:00:00+00:00",
+  "n_retractions_total": 0,
+  "n_with_doi": 0,
+  "n_with_citations": 0,
+  "n_citations_total": 0,
+  "partial_run": true,
+  "top_reasons": [],
+  "top_journals": [],
+  "event_window": [-10, 10]
+}
