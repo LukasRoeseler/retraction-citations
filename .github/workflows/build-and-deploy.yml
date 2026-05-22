@@ -1,0 +1,81 @@
+name: build-and-deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_dois:
+        description: "Cap originals processed this run (0 = no cap)"
+        required: false
+        default: "0"
+  schedule:
+    # Run twice a day so the OpenCitations fetch resumes from cache and
+    # gradually fills in. Once the cache is hot this becomes near-free.
+    - cron: "17 3,15 * * *"
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "assets/**"
+      - "scripts/**"
+      - ".github/workflows/**"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "build-and-deploy"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350     # GH Actions hard limit is 360 min
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install deps
+        run: pip install -r scripts/requirements.txt
+
+      - name: Run pipeline
+        env:
+          OC_API_KEY: ${{ secrets.OC_API_KEY }}
+          MY_EMAIL:   ${{ secrets.MY_EMAIL }}
+          MAX_RUNTIME_SECONDS: "20000"     # ~5h 30m; leaves room for commit
+          MAX_DOIS: ${{ inputs.max_dois || '0' }}
+          OC_DELAY: "0.4"
+          FLUSH_EVERY: "500"
+        run: python scripts/build_data.py
+
+      - name: Commit updated data + cache
+        run: |
+          git config user.name  "retraction-bot"
+          git config user.email "retraction-bot@users.noreply.github.com"
+          git add data cache || true
+          if git diff --cached --quiet; then
+            echo "nothing to commit"
+          else
+            git commit -m "chore(data): refresh citations [skip ci]"
+            git push
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
