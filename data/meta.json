@@ -1,11 +1,176 @@
 {
-  "last_updated": "2026-05-22T00:00:00+00:00",
-  "n_retractions_total": 0,
-  "n_with_doi": 0,
-  "n_with_citations": 0,
-  "n_citations_total": 0,
+  "last_updated": "2026-05-22T15:55:43.474864+00:00",
+  "n_retractions_total": 61268,
+  "n_with_doi": 61268,
+  "n_with_citations": 29251,
+  "n_citations_total": 412014,
   "partial_run": true,
-  "top_reasons": [],
-  "top_journals": [],
-  "event_window": [-10, 10]
+  "top_reasons": [
+    [
+      "Investigation by Journal/Publisher",
+      22803
+    ],
+    [
+      "Unreliable Results and/or Conclusions",
+      18266
+    ],
+    [
+      "Investigation by Third Party",
+      14795
+    ],
+    [
+      "Concerns/Issues about Referencing/Attributions",
+      13340
+    ],
+    [
+      "Concerns/Issues about Data",
+      11502
+    ],
+    [
+      "Concerns/Issues about Peer Review",
+      11100
+    ],
+    [
+      "Paper Mill",
+      9938
+    ],
+    [
+      "Concerns/Issues about Results and/or Conclusions",
+      8332
+    ],
+    [
+      "Computer-Aided Content or Computer-Generated Content",
+      8196
+    ],
+    [
+      "Compromised Peer Review",
+      7516
+    ],
+    [
+      "Objections by Author(s)",
+      2520
+    ],
+    [
+      "Duplication of/in Image",
+      2325
+    ],
+    [
+      "Author Unresponsive",
+      2115
+    ],
+    [
+      "Lack of IRB/IACUC Approval and/or Compliance",
+      2054
+    ],
+    [
+      "Concerns/Issues about Image",
+      2009
+    ],
+    [
+      "Concerns/Issues about Authorship/Affiliation",
+      1776
+    ],
+    [
+      "Rogue Editor",
+      1744
+    ],
+    [
+      "Date of Article and/or Notice Unknown",
+      1713
+    ],
+    [
+      "Concerns/Issues about Article",
+      1580
+    ],
+    [
+      "Concerns/Issues about Third Party Involvement",
+      1552
+    ]
+  ],
+  "top_journals": [
+    [
+      "Journal of Intelligent & Fuzzy Systems",
+      1508
+    ],
+    [
+      "Journal of Healthcare Engineering",
+      1073
+    ],
+    [
+      "Computational and Mathematical Methods in Medicine",
+      1064
+    ],
+    [
+      "Computational Intelligence and Neuroscience",
+      1027
+    ],
+    [
+      "Security and Communication Networks",
+      944
+    ],
+    [
+      "BioMed Research International",
+      886
+    ],
+    [
+      "PLoS One",
+      811
+    ],
+    [
+      "Wireless Communications and Mobile Computing",
+      797
+    ],
+    [
+      "Evidence-Based Complementary and Alternative Medicine",
+      726
+    ],
+    [
+      "E3S Web of Conferences",
+      580
+    ],
+    [
+      "Soft Computing",
+      532
+    ],
+    [
+      "Journal of Sensors",
+      461
+    ],
+    [
+      "Journal of Environmental and Public Health",
+      434
+    ],
+    [
+      "Mobile Information Systems",
+      380
+    ],
+    [
+      "Mathematical Problems in Engineering",
+      353
+    ],
+    [
+      "International Wound Journal",
+      303
+    ],
+    [
+      "AIP Conference Proceedings",
+      301
+    ],
+    [
+      "Applied Bionics and Biomechanics",
+      287
+    ],
+    [
+      "Heliyon",
+      271
+    ],
+    [
+      "Complexity",
+      265
+    ]
+  ],
+  "event_window": [
+    -10,
+    10
+  ]
 }
