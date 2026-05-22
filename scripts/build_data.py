@@ -40,6 +40,7 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 CSV_PATH = ROOT / "retraction_watch.csv"
+RW_URL = "https://gitlab.com/crossref/retraction-watch-data/-/raw/main/retraction_watch.csv?inline=false"
 OC_BASE = "https://opencitations.net/index/api/v2"
 OC_KEY = os.environ.get("OC_API_KEY", "").strip()
 EMAIL = os.environ.get("MY_EMAIL", "retractioncitations@local").strip()
@@ -160,7 +161,29 @@ def short_reasons(raw) -> list[str]:
 
 
 # ------------------------------------------------------------------ RW load
+def ensure_csv() -> None:
+    """Download the Retraction Watch CSV if it isn't already on disk.
+
+    The file is ~60 MB and is not committed to the repo. CI (and a fresh
+    local clone) lazily fetches it on first run.
+    """
+    if CSV_PATH.exists() and CSV_PATH.stat().st_size > 1_000_000:
+        return
+    print(f"Downloading Retraction Watch CSV → {CSV_PATH}")
+    CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with session.get(RW_URL, stream=True, timeout=180) as r:
+        r.raise_for_status()
+        tmp = CSV_PATH.with_suffix(".csv.part")
+        with open(tmp, "wb") as f:
+            for chunk in r.iter_content(chunk_size=1 << 16):
+                if chunk:
+                    f.write(chunk)
+        tmp.replace(CSV_PATH)
+    print(f"  {CSV_PATH.stat().st_size / 1e6:.1f} MB")
+
+
 def load_retraction_watch() -> pd.DataFrame:
+    ensure_csv()
     print(f"Loading Retraction Watch CSV: {CSV_PATH}")
     df = pd.read_csv(CSV_PATH, low_memory=False, encoding_errors="replace")
     print(f"  {len(df):,} rows")
