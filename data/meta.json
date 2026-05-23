@@ -1,100 +1,112 @@
 {
-  "last_updated": "2026-05-22T15:55:43.474864+00:00",
+  "last_updated": "2026-05-23T02:54:18.873260+00:00",
   "n_retractions_total": 61268,
   "n_with_doi": 61268,
-  "n_with_citations": 29251,
-  "n_citations_total": 412014,
+  "n_with_citations": 56308,
+  "n_citations_total": 882458,
   "partial_run": true,
   "top_reasons": [
     [
       "Investigation by Journal/Publisher",
-      22803
+      28503
     ],
     [
       "Unreliable Results and/or Conclusions",
-      18266
+      20017
     ],
     [
       "Investigation by Third Party",
-      14795
+      16793
     ],
     [
       "Concerns/Issues about Referencing/Attributions",
-      13340
+      14374
     ],
     [
       "Concerns/Issues about Data",
-      11502
-    ],
-    [
-      "Concerns/Issues about Peer Review",
-      11100
+      14320
     ],
     [
       "Paper Mill",
-      9938
+      11654
     ],
     [
-      "Concerns/Issues about Results and/or Conclusions",
-      8332
-    ],
-    [
-      "Computer-Aided Content or Computer-Generated Content",
-      8196
+      "Concerns/Issues about Peer Review",
+      11104
     ],
     [
       "Compromised Peer Review",
-      7516
+      10582
     ],
     [
-      "Objections by Author(s)",
-      2520
+      "Concerns/Issues about Results and/or Conclusions",
+      9208
     ],
     [
-      "Duplication of/in Image",
-      2325
+      "Notice - Limited or No Information",
+      9101
     ],
     [
-      "Author Unresponsive",
-      2115
-    ],
-    [
-      "Lack of IRB/IACUC Approval and/or Compliance",
-      2054
-    ],
-    [
-      "Concerns/Issues about Image",
-      2009
-    ],
-    [
-      "Concerns/Issues about Authorship/Affiliation",
-      1776
-    ],
-    [
-      "Rogue Editor",
-      1744
+      "Computer-Aided Content or Computer-Generated Content",
+      9073
     ],
     [
       "Date of Article and/or Notice Unknown",
-      1713
+      6572
     ],
     [
-      "Concerns/Issues about Article",
-      1580
+      "Breach of Policy by Author",
+      4589
     ],
     [
-      "Concerns/Issues about Third Party Involvement",
-      1552
+      "Duplication of/in Image",
+      4584
+    ],
+    [
+      "Removed",
+      3149
+    ],
+    [
+      "Concerns/Issues about Image",
+      2969
+    ],
+    [
+      "Author Unresponsive",
+      2867
+    ],
+    [
+      "Objections by Author(s)",
+      2842
+    ],
+    [
+      "Rogue Editor",
+      2675
+    ],
+    [
+      "Concerns/Issues about Authorship/Affiliation",
+      2475
     ]
   ],
   "top_journals": [
     [
       "Journal of Intelligent & Fuzzy Systems",
-      1508
+      1565
+    ],
+    [
+      "PLoS One",
+      1344
+    ],
+    [
+      "2011 International Conference on E-Business and E-Government (ICEE)",
+      1239
+    ],
+    [
+      "2011 5th International Conference on Bioinformatics and Biomedical Engineering",
+      1084
     ],
     [
       "Journal of Healthcare Engineering",
-      1073
+      1074
     ],
     [
       "Computational and Mathematical Methods in Medicine",
@@ -102,71 +114,59 @@
     ],
     [
       "Computational Intelligence and Neuroscience",
-      1027
+      1029
     ],
     [
       "Security and Communication Networks",
-      944
+      948
     ],
     [
       "BioMed Research International",
-      886
+      941
     ],
     [
-      "PLoS One",
-      811
+      "Journal of Physics: Conference Series",
+      878
     ],
     [
       "Wireless Communications and Mobile Computing",
-      797
+      798
     ],
     [
       "Evidence-Based Complementary and Alternative Medicine",
-      726
+      751
     ],
     [
       "E3S Web of Conferences",
       580
     ],
     [
+      "Cochrane Database of Systematic Reviews",
+      572
+    ],
+    [
       "Soft Computing",
-      532
+      536
     ],
     [
       "Journal of Sensors",
-      461
+      462
     ],
     [
       "Journal of Environmental and Public Health",
       434
     ],
     [
-      "Mobile Information Systems",
-      380
+      "Journal of Ambient Intelligence and Humanized Computing",
+      432
     ],
     [
-      "Mathematical Problems in Engineering",
-      353
+      "Arabian Journal of Geosciences",
+      418
     ],
     [
-      "International Wound Journal",
-      303
-    ],
-    [
-      "AIP Conference Proceedings",
-      301
-    ],
-    [
-      "Applied Bionics and Biomechanics",
-      287
-    ],
-    [
-      "Heliyon",
-      271
-    ],
-    [
-      "Complexity",
-      265
+      "Journal of Fundamental and Applied Sciences",
+      401
     ]
   ],
   "event_window": [
