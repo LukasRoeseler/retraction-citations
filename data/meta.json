@@ -1,30 +1,30 @@
 {
-  "last_updated": "2026-05-23T02:54:18.873260+00:00",
-  "n_retractions_total": 61268,
-  "n_with_doi": 61268,
-  "n_with_citations": 56308,
-  "n_citations_total": 882458,
-  "partial_run": true,
+  "last_updated": "2026-05-23T07:43:24.773768+00:00",
+  "n_retractions_total": 61280,
+  "n_with_doi": 61280,
+  "n_with_citations": 61280,
+  "n_citations_total": 1050550,
+  "partial_run": false,
   "top_reasons": [
     [
       "Investigation by Journal/Publisher",
-      28503
+      29060
     ],
     [
       "Unreliable Results and/or Conclusions",
-      20017
+      20518
     ],
     [
       "Investigation by Third Party",
-      16793
-    ],
-    [
-      "Concerns/Issues about Referencing/Attributions",
-      14374
+      17079
     ],
     [
       "Concerns/Issues about Data",
-      14320
+      14688
+    ],
+    [
+      "Concerns/Issues about Referencing/Attributions",
+      14523
     ],
     [
       "Paper Mill",
@@ -32,19 +32,19 @@
     ],
     [
       "Concerns/Issues about Peer Review",
-      11104
+      11109
     ],
     [
       "Compromised Peer Review",
-      10582
-    ],
-    [
-      "Concerns/Issues about Results and/or Conclusions",
-      9208
+      10831
     ],
     [
       "Notice - Limited or No Information",
-      9101
+      9495
+    ],
+    [
+      "Concerns/Issues about Results and/or Conclusions",
+      9356
     ],
     [
       "Computer-Aided Content or Computer-Generated Content",
@@ -52,39 +52,39 @@
     ],
     [
       "Date of Article and/or Notice Unknown",
-      6572
-    ],
-    [
-      "Breach of Policy by Author",
-      4589
+      6645
     ],
     [
       "Duplication of/in Image",
-      4584
+      4909
+    ],
+    [
+      "Breach of Policy by Author",
+      4719
     ],
     [
       "Removed",
-      3149
+      3391
+    ],
+    [
+      "Investigation by Company/Institution",
+      3319
     ],
     [
       "Concerns/Issues about Image",
-      2969
-    ],
-    [
-      "Author Unresponsive",
-      2867
+      3062
     ],
     [
       "Objections by Author(s)",
-      2842
+      2960
     ],
     [
-      "Rogue Editor",
-      2675
+      "Author Unresponsive",
+      2909
     ],
     [
-      "Concerns/Issues about Authorship/Affiliation",
-      2475
+      "Duplication of/in Article",
+      2837
     ]
   ],
   "top_journals": [
@@ -94,11 +94,11 @@
     ],
     [
       "PLoS One",
-      1344
+      1399
     ],
     [
       "2011 International Conference on E-Business and E-Government (ICEE)",
-      1239
+      1240
     ],
     [
       "2011 5th International Conference on Bioinformatics and Biomedical Engineering",
@@ -110,19 +110,19 @@
     ],
     [
       "Computational and Mathematical Methods in Medicine",
-      1064
+      1065
     ],
     [
       "Computational Intelligence and Neuroscience",
       1029
     ],
     [
-      "Security and Communication Networks",
-      948
+      "BioMed Research International",
+      951
     ],
     [
-      "BioMed Research International",
-      941
+      "Security and Communication Networks",
+      948
     ],
     [
       "Journal of Physics: Conference Series",
@@ -134,7 +134,7 @@
     ],
     [
       "Evidence-Based Complementary and Alternative Medicine",
-      751
+      755
     ],
     [
       "E3S Web of Conferences",
@@ -142,15 +142,19 @@
     ],
     [
       "Cochrane Database of Systematic Reviews",
-      572
+      574
     ],
     [
       "Soft Computing",
-      536
+      544
     ],
     [
       "Journal of Sensors",
-      462
+      464
+    ],
+    [
+      "The Journal of Biological Chemistry",
+      435
     ],
     [
       "Journal of Environmental and Public Health",
@@ -163,10 +167,6 @@
     [
       "Arabian Journal of Geosciences",
       418
-    ],
-    [
-      "Journal of Fundamental and Applied Sciences",
-      401
     ]
   ],
   "event_window": [
