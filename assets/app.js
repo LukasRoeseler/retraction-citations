@@ -24,6 +24,7 @@
   }
 
   async function init() {
+    let loaded = false;
     try {
       const [meta, aggregate, retractions] = await Promise.all([
         loadJSON("data/meta.json"),
@@ -34,16 +35,17 @@
       STATE.aggregate = aggregate;
       STATE.studies = retractions.studies || {};
       STATE.index = retractions.index || [];
-      renderAll();
+      loaded = true;
     } catch (e) {
-      console.error(e);
+      console.error("data load failed", e);
       const err = $("#global-error");
       err.hidden = false;
       err.textContent =
-        "Could not load data files (data/meta.json, data/aggregate.json, data/retractions.json). " +
-        "Run the data pipeline first — see README.";
+        "Could not load data files. Run the data pipeline first — see README.";
       $("#global-loading").hidden = true;
+      return;
     }
+    if (loaded) renderAll();
   }
 
   // ----------------------------------------------------------- render
@@ -52,19 +54,28 @@
     $("#aggregate").hidden = false;
     $("#browse").hidden = false;
 
-    renderKPIs();
-    renderAggregate();
-    setupBrowse();
-    renderTable();
-    renderFooter();
+    // Per-section guards: a failure in one block must not stop the rest.
+    safe("renderKPIs",      renderKPIs);
+    safe("renderFooter",    renderFooter);
+    safe("renderAggregate", renderAggregate);
+    safe("setupBrowse",     setupBrowse);
+    safe("renderTable",     renderTable);
+  }
+
+  function safe(label, fn) {
+    try { fn(); }
+    catch (e) { console.error(`${label} failed`, e); }
   }
 
   function renderKPIs() {
     const m = STATE.meta || {};
-    $("#kpi-total").textContent       = fmt.format(m.n_retractions_total || 0);
-    $("#kpi-with-doi").textContent    = fmt.format(m.n_with_doi || 0);
-    $("#kpi-with-cit").textContent    = fmt.format(m.n_with_citations || 0);
-    $("#kpi-total-cit").textContent   = fmt.format(m.n_citations_total || 0);
+    $("#kpi-total").textContent     = fmt.format(m.n_retractions_total || 0);
+    $("#kpi-with-cit").textContent  = fmt.format(m.n_with_citations || 0);
+    $("#kpi-total-cit").textContent = fmt.format(m.n_citations_total || 0);
+    const d = m.last_updated ? new Date(m.last_updated) : null;
+    $("#kpi-last-updated").textContent = d
+      ? d.toISOString().slice(0, 10) + (m.partial_run ? " (partial)" : "")
+      : "—";
   }
 
   function renderFooter() {
@@ -127,20 +138,26 @@
       }), plotConfig());
     }
 
-    // model event-study plot
+    // model event-study plot — confidence band via tonexty
     if (m.event_time && m.event_time.length) {
-      const upper = m.ci_high;
-      const lower = m.ci_low;
+      const x = m.event_time;
       const traces = [
         {
-          x: m.event_time.concat([...m.event_time].reverse()),
-          y: upper.concat([...lower].reverse()),
-          fill: "toself", fillcolor: "rgba(122,28,28,0.15)",
+          x, y: m.ci_low,
+          type: "scatter", mode: "lines",
           line: { color: "transparent" },
-          type: "scatter", showlegend: false, hoverinfo: "skip",
+          showlegend: false, hoverinfo: "skip",
         },
         {
-          x: m.event_time, y: m.estimate,
+          x, y: m.ci_high,
+          type: "scatter", mode: "lines",
+          line: { color: "transparent" },
+          fill: "tonexty", fillcolor: "rgba(122,28,28,0.15)",
+          name: "95% CI",
+          showlegend: false, hoverinfo: "skip",
+        },
+        {
+          x, y: m.estimate,
           type: "scatter", mode: "lines+markers",
           line: { color: "#7a1c1c", width: 2 },
           marker: { size: 6, color: "#7a1c1c" },
@@ -158,19 +175,20 @@
   }
 
   function baseLayout(opts) {
-    return {
+    const lay = {
       margin: { l: 56, r: 56, t: 18, b: 44 },
       paper_bgcolor: "#fdfcfa",
       plot_bgcolor: "#fdfcfa",
       font: { family: "Inter, system-ui, sans-serif", size: 12, color: "#1d1d1f" },
       xaxis: { title: opts.xtitle, gridcolor: "#eee", zerolinecolor: "#ddd" },
       yaxis: { title: opts.ytitle, gridcolor: "#eee", zerolinecolor: "#ddd" },
-      yaxis2: opts.y2,
       shapes: opts.shapes || [],
       annotations: opts.annotations || [],
       legend: { orientation: "h", y: -0.2 },
       hovermode: "closest",
     };
+    if (opts.y2) lay.yaxis2 = opts.y2;
+    return lay;
   }
 
   function plotConfig() {
