@@ -13,14 +13,12 @@
 </head>
 <body>
 
+<!-- WIP ribbon -->
+<div class="wip-ribbon" aria-label="Work in progress">Work in Progress</div>
+
 <header class="top-bar">
   <div class="container top-bar-inner">
     <a class="brand-mark" href="#"><span>Retraction Citation Explorer</span></a>
-    <nav class="top-nav">
-      <a href="#aggregate">Aggregate impact</a>
-      <a href="#browse">Browse retractions</a>
-      <a href="#about">About</a>
-    </nav>
   </div>
 </header>
 
@@ -32,8 +30,7 @@
       with citation data from <a href="https://opencitations.net" target="_blank">OpenCitations</a> to explore how the
       retraction of a paper affects subsequent citations.
     </p>
-
-    <div class="kpi-row" id="kpi-row">
+    <div class="kpi-row">
       <div class="kpi"><div class="kpi-num" id="kpi-total">—</div><div class="kpi-label">Retractions in dataset</div></div>
       <div class="kpi"><div class="kpi-num" id="kpi-with-cit">—</div><div class="kpi-label">Citations fetched</div></div>
       <div class="kpi"><div class="kpi-num" id="kpi-total-cit">—</div><div class="kpi-label">Total citations</div></div>
@@ -42,101 +39,146 @@
   </div>
 </section>
 
+<!-- tab bar -->
+<div class="tabs-bar">
+  <div class="container">
+    <nav class="tabs-nav" role="tablist">
+      <button class="tab-btn active" data-tab="citations" role="tab" aria-selected="true">Citations</button>
+      <button class="tab-btn" data-tab="trends" role="tab" aria-selected="false">Trends</button>
+    </nav>
+  </div>
+</div>
+
 <main class="container">
 
   <div id="global-loading" class="loading">Loading data…</div>
   <div id="global-error" class="alert" hidden></div>
 
-  <!-- =================== AGGREGATE =================== -->
-  <section id="aggregate" class="card" hidden>
-    <div class="card-header">Aggregate impact of retractions</div>
-    <div class="card-body">
-      <p class="muted">
-        Event-study estimates: each retracted paper is aligned at <em>t&nbsp;=&nbsp;0</em>, the year of its retraction.
-        The left panel shows mean citations per year. The right panel shows the log-effect with 95% CIs from a
-        two-way fixed-effects model (study + year, clustered on study).
-      </p>
+  <!-- =================== TAB: CITATIONS =================== -->
+  <div id="tab-citations">
 
-      <div class="att-callout" id="att-callout"></div>
-
-      <div class="plot-grid">
-        <div class="plot-card">
-          <h3>Citations to the retracted paper</h3>
-          <div id="plot-descr" class="plot"></div>
+    <section id="aggregate" class="card" hidden>
+      <div class="card-header">Aggregate impact of retractions</div>
+      <div class="card-body">
+        <p class="muted">
+          Event-study estimates: each retracted paper is aligned at <em>t&nbsp;=&nbsp;0</em>, the year of its retraction.
+          Left panel: mean citations per year. Right panel: log-effect with 95% CIs from a
+          two-way fixed-effects model (study + year FE, SEs clustered on study).
+        </p>
+        <div class="att-callout" id="att-callout"></div>
+        <div class="plot-grid">
+          <div class="plot-card">
+            <h3>Citations to the retracted paper</h3>
+            <div id="plot-descr" class="plot"></div>
+          </div>
+          <div class="plot-card">
+            <h3>Event-study (log effect, 95% CI)</h3>
+            <div id="plot-model" class="plot"></div>
+          </div>
         </div>
-        <div class="plot-card">
-          <h3>Event-study (log effect, 95% CI)</h3>
-          <div id="plot-model" class="plot"></div>
+      </div>
+    </section>
+
+    <section id="browse" class="card" hidden>
+      <div class="card-header">Browse retractions</div>
+      <div class="card-body">
+        <p class="muted">Click any row to see its citation timeline with the retraction year marked.</p>
+        <div class="search-row">
+          <input id="search-input" type="search" placeholder="Search title, author, journal, or DOI…">
+          <select id="filter-reason"><option value="">All retraction reasons</option></select>
+          <select id="sort-by">
+            <option value="n_citations">Most cited</option>
+            <option value="year_desc">Newest retraction</option>
+            <option value="year_asc">Oldest retraction</option>
+            <option value="orig_year_desc">Newest original</option>
+            <option value="orig_year_asc">Oldest original</option>
+          </select>
+          <select id="filter-decade"><option value="">All retraction years</option></select>
         </div>
+        <div class="table-wrap">
+          <table id="originals-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th class="num">Pub. year</th>
+                <th class="num">Retracted</th>
+                <th>Journal</th>
+                <th class="num">Citations</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="pagination"></div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- =================== BROWSE =================== -->
-  <section id="browse" class="card" hidden>
-    <div class="card-header">Browse retractions</div>
-    <div class="card-body">
-      <p class="muted">Click any row to see its citation timeline with the retraction year marked.</p>
-
-      <div class="search-row">
-        <input id="search-input" type="search" placeholder="Search title, author, journal, or DOI…">
-        <select id="sort-by">
-          <option value="n_citations">Most cited</option>
-          <option value="year_desc">Newest retraction</option>
-          <option value="year_asc">Oldest retraction</option>
-          <option value="orig_year_desc">Newest original</option>
-          <option value="orig_year_asc">Oldest original</option>
-        </select>
-        <select id="filter-decade">
-          <option value="">All retraction years</option>
-        </select>
+    <section id="about" class="card">
+      <div class="card-header">About this tool</div>
+      <div class="card-body about-body">
+        <p>This dashboard combines two open datasets:</p>
+        <ul>
+          <li>The <a href="https://gitlab.com/crossref/retraction-watch-data" target="_blank">Retraction Watch database</a>
+              (maintained by Crossref) — the most comprehensive catalogue of retracted scholarly papers.</li>
+          <li><a href="https://opencitations.net" target="_blank">OpenCitations</a> — open scholarly citation data.</li>
+        </ul>
+        <p>
+          For every retraction with a usable DOI, we pull incoming citations from OpenCitations and tally them by year.
+          The aggregate event-study aligns each paper at the year it was retracted.
+          Data are refreshed monthly.
+        </p>
       </div>
+    </section>
 
-      <div class="table-wrap">
-        <table id="originals-table">
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th class="num">Pub. year</th>
-              <th class="num">Retracted</th>
-              <th>Journal</th>
-              <th class="num">Citations</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+  </div><!-- /tab-citations -->
+
+  <!-- =================== TAB: TRENDS =================== -->
+  <div id="tab-trends" hidden>
+
+    <section class="card">
+      <div class="card-header">Retractions by year</div>
+      <div class="card-body">
+        <div id="plot-by-year" class="plot"></div>
       </div>
-      <div class="pagination" id="pagination"></div>
-    </div>
-  </section>
+    </section>
 
-  <!-- =================== ABOUT =================== -->
-  <section id="about" class="card">
-    <div class="card-header">About this tool</div>
-    <div class="card-body about-body">
-      <p>
-        This dashboard combines two open datasets:
-      </p>
-      <ul>
-        <li>The <a href="https://gitlab.com/crossref/retraction-watch-data" target="_blank">Retraction&nbsp;Watch database</a>
-            (maintained by Crossref) — the most comprehensive list of retracted scholarly papers.</li>
-        <li><a href="https://opencitations.net" target="_blank">OpenCitations</a> — open scholarly citation data.</li>
-      </ul>
-      <p>
-        For every retraction in the database that has a usable DOI for the original paper, we pull all incoming
-        citations from OpenCitations (once, cached) and tally them by year. The aggregate event-study aligns each
-        paper at the year it was retracted. The browse table lets you drill into any specific retraction.
-      </p>
-      <p class="muted small">
-        Built in the spirit of the
-        <a href="https://forrt.org/flora-explorer/" target="_blank">FLoRA Citation Impact Explorer</a>.
-      </p>
-    </div>
-  </section>
+    <section class="card">
+      <div class="card-header">Top retraction reasons</div>
+      <div class="card-body">
+        <p class="muted">Reasons are not mutually exclusive — one retraction can have multiple reasons.</p>
+        <div id="plot-reasons" style="height:540px;width:100%"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">Top journals by retraction count</div>
+      <div class="card-body">
+        <div id="trends-journals-wrap"></div>
+        <div class="pagination" id="trend-journal-pager"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">Top authors by retraction count</div>
+      <div class="card-body">
+        <p class="muted small">Author names are parsed from the Retraction Watch author field; common names may aggregate across different individuals.</p>
+        <div id="trends-authors-wrap"></div>
+        <div class="pagination" id="trend-author-pager"></div>
+      </div>
+    </section>
+
+  </div><!-- /tab-trends -->
 
   <footer class="footer">
-    Data: Retraction&nbsp;Watch (Crossref) · OpenCitations · <span id="last-updated"></span>
+    Data: <a href="https://gitlab.com/crossref/retraction-watch-data" target="_blank">Retraction Watch</a> (Crossref) ·
+    <a href="https://opencitations.net" target="_blank">OpenCitations</a> ·
+    <span id="last-updated"></span>
+    <br>
+    Created with <a href="https://claude.ai" target="_blank">Claude Sonnet 4.6</a> ·
+    Released under the <a href="https://opensource.org/licenses/MIT" target="_blank">MIT License</a> ·
+    Retraction data © <a href="https://retractionwatch.com" target="_blank">Retraction Watch</a> / Crossref, used under their open data terms.
   </footer>
+
 </main>
 
 <!-- Per-study modal -->

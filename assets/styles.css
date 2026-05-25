@@ -1,3 +1,21 @@
+/* ---------------------------------------------------------------- WIP ribbon */
+.wip-ribbon{
+  position: fixed;
+  top: 32px; right: -38px;
+  width: 170px;
+  background: #d97706;
+  color: #fff;
+  text-align: center;
+  font-size: .7rem; font-weight: 700;
+  padding: 5px 0;
+  transform: rotate(45deg);
+  z-index: 200;
+  pointer-events: none;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  box-shadow: 0 2px 6px rgba(0,0,0,.25);
+}
+
 :root{
   --bg: #f6f5f3;
   --surface: #ffffff;
@@ -27,6 +45,43 @@ a:hover{text-decoration:underline}
 
 .container{max-width:1180px; margin:0 auto; padding:0 24px}
 
+/* --- tabs bar --- */
+.tabs-bar{
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; z-index: 40;
+}
+.tabs-nav{ display:flex; gap:0 }
+.tab-btn{
+  font: inherit; font-size: .95rem; font-weight: 500;
+  color: var(--muted);
+  background: none; border: none;
+  padding: .75rem 1.4rem;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: color .15s, border-color .15s;
+}
+.tab-btn:hover{ color: var(--ink) }
+.tab-btn.active{
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* --- trends table --- */
+.trends-table{
+  width:100%; border-collapse: collapse; font-size: .92rem;
+}
+.trends-table th, .trends-table td{
+  padding: .5rem .65rem; text-align:left;
+  border-bottom: 1px solid var(--line);
+}
+.trends-table th{
+  font-weight:600; color: var(--ink-soft);
+  font-size: .78rem; text-transform: uppercase; letter-spacing:.05em;
+  background: #faf9f7;
+}
+.trends-table th.num, .trends-table td.num{ text-align:right; white-space:nowrap }
+
 /* --- top bar --- */
 .top-bar{
   background:#1d1d1f; color:#fff;
@@ -42,10 +97,6 @@ a:hover{text-decoration:underline}
   background: linear-gradient(135deg, var(--accent) 0%, var(--accent-soft) 100%);
   display:inline-block;
 }
-.top-nav a{
-  color:#d6d6da; margin-left:1.5rem; font-size:.92rem;
-}
-.top-nav a:hover{color:#fff; text-decoration:none}
 
 /* --- hero --- */
 .hero{

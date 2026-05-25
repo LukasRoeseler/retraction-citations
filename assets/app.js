@@ -1,22 +1,30 @@
-/* Retraction Citation Explorer — frontend */
+/* Retraction Citation Explorer */
 (function () {
   "use strict";
 
   const fmt = new Intl.NumberFormat("en-US");
+
   const STATE = {
     meta: null,
     aggregate: null,
-    studies: {},     // doi -> full study object (lazy: comes from retractions.json)
-    index: [],       // light index for table
+    studies: {},
+    index: [],
     filtered: [],
     page: 0,
     pageSize: 25,
   };
 
-  const $ = (sel, root) => (root || document).querySelector(sel);
-  const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+  const TRENDS = {
+    rendered: false,
+    journalPage: 0,
+    authorPage: 0,
+    pageSize: 15,
+    topAuthors: null,
+  };
 
-  // ----------------------------------------------------------- data load
+  const $ = (sel, root) => (root || document).querySelector(sel);
+
+  // ---------------------------------------------------------------- data load
   async function loadJSON(url) {
     const r = await fetch(url + "?t=" + Date.now(), { cache: "no-store" });
     if (!r.ok) throw new Error(`${url}: ${r.status}`);
@@ -24,7 +32,6 @@
   }
 
   async function init() {
-    let loaded = false;
     try {
       const [meta, aggregate, retractions] = await Promise.all([
         loadJSON("data/meta.json"),
@@ -35,38 +42,34 @@
       STATE.aggregate = aggregate;
       STATE.studies = retractions.studies || {};
       STATE.index = retractions.index || [];
-      loaded = true;
     } catch (e) {
       console.error("data load failed", e);
       const err = $("#global-error");
       err.hidden = false;
-      err.textContent =
-        "Could not load data files. Run the data pipeline first — see README.";
+      err.textContent = "Could not load data files. Run the data pipeline first — see README.";
       $("#global-loading").hidden = true;
       return;
     }
-    if (loaded) renderAll();
+    renderAll();
   }
 
-  // ----------------------------------------------------------- render
   function renderAll() {
     $("#global-loading").hidden = true;
     $("#aggregate").hidden = false;
     $("#browse").hidden = false;
-
-    // Per-section guards: a failure in one block must not stop the rest.
     safe("renderKPIs",      renderKPIs);
     safe("renderFooter",    renderFooter);
     safe("renderAggregate", renderAggregate);
     safe("setupBrowse",     setupBrowse);
     safe("renderTable",     renderTable);
+    safe("setupTabs",       setupTabs);
   }
 
   function safe(label, fn) {
-    try { fn(); }
-    catch (e) { console.error(`${label} failed`, e); }
+    try { fn(); } catch (e) { console.error(label + " failed", e); }
   }
 
+  // ---------------------------------------------------------------- KPIs / footer
   function renderKPIs() {
     const m = STATE.meta || {};
     $("#kpi-total").textContent     = fmt.format(m.n_retractions_total || 0);
@@ -82,18 +85,37 @@
     const m = STATE.meta;
     if (!m || !m.last_updated) return;
     const d = new Date(m.last_updated);
-    $("#last-updated").textContent =
-      "last updated " + d.toISOString().slice(0, 10) +
-      (m.partial_run ? " (partial run)" : "");
+    const el = $("#last-updated");
+    if (el) el.textContent = "last updated " + d.toISOString().slice(0, 10);
   }
 
-  // ----------------------------------------------------------- aggregate
+  // ---------------------------------------------------------------- tabs
+  function setupTabs() {
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => {
+          b.classList.remove("active");
+          b.setAttribute("aria-selected", "false");
+        });
+        btn.classList.add("active");
+        btn.setAttribute("aria-selected", "true");
+        const tab = btn.dataset.tab;
+        $("#tab-citations").hidden = (tab !== "citations");
+        $("#tab-trends").hidden    = (tab !== "trends");
+        if (tab === "trends" && !TRENDS.rendered) {
+          TRENDS.rendered = true;
+          safe("renderTrends", renderTrends);
+        }
+      });
+    });
+  }
+
+  // ---------------------------------------------------------------- aggregate plots
   function renderAggregate() {
     const agg = STATE.aggregate || {};
-    const d = agg.descriptive || {};
-    const m = agg.model || {};
+    const d   = agg.descriptive || {};
+    const m   = agg.model || {};
 
-    // ATT callout
     const callout = $("#att-callout");
     if (m && typeof m.att === "number") {
       const pct = (Math.exp(m.att) - 1) * 100;
@@ -106,12 +128,11 @@
         `<strong>Average post-retraction effect on citations:</strong> ` +
         `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%${ciTxt} · based on ${fmt.format(m.n_units || 0)} retractions`;
     } else {
-      callout.textContent = "Not enough data for an aggregate effect yet — try re-running the pipeline.";
+      callout.textContent = "Not enough data for an aggregate effect yet.";
     }
 
-    // descriptive plot
     if (d.event_time && d.event_time.length) {
-      const traces = [
+      Plotly.newPlot("plot-descr", [
         {
           x: d.event_time, y: d.mean_citations,
           type: "scatter", mode: "lines+markers",
@@ -124,61 +145,54 @@
           x: d.event_time, y: d.n_units,
           type: "scatter", mode: "lines",
           line: { color: "#bbb", width: 1, dash: "dot" },
-          name: "N studies",
-          yaxis: "y2",
+          name: "N studies", yaxis: "y2",
           hovertemplate: "t=%{x}<br>N=%{y}<extra></extra>",
         },
-      ];
-      Plotly.newPlot("plot-descr", traces, baseLayout({
+      ], baseLayout({
         xtitle: "Years relative to retraction",
         ytitle: "Mean citations per year",
-        y2: { title: "N studies", side: "right", overlaying: "y", showgrid: false },
+        y2: { title: { text: "N studies" }, side: "right", overlaying: "y", showgrid: false },
         shapes: [vline(0, "#7a1c1c")],
         annotations: [vlabel(0, "Retracted", "#7a1c1c")],
-      }), plotConfig());
+      }), plotCfg());
     }
 
-    // model event-study plot — confidence band via tonexty
     if (m.event_time && m.event_time.length) {
-      const x = m.event_time;
-      const traces = [
+      Plotly.newPlot("plot-model", [
         {
-          x, y: m.ci_low,
+          x: m.event_time, y: m.ci_low,
           type: "scatter", mode: "lines",
           line: { color: "transparent" },
           showlegend: false, hoverinfo: "skip",
         },
         {
-          x, y: m.ci_high,
+          x: m.event_time, y: m.ci_high,
           type: "scatter", mode: "lines",
           line: { color: "transparent" },
           fill: "tonexty", fillcolor: "rgba(122,28,28,0.15)",
-          name: "95% CI",
           showlegend: false, hoverinfo: "skip",
         },
         {
-          x, y: m.estimate,
+          x: m.event_time, y: m.estimate,
           type: "scatter", mode: "lines+markers",
           line: { color: "#7a1c1c", width: 2 },
           marker: { size: 6, color: "#7a1c1c" },
           name: "Estimate",
           hovertemplate: "t=%{x}<br>β=%{y:.3f}<extra></extra>",
         },
-      ];
-      Plotly.newPlot("plot-model", traces, baseLayout({
+      ], baseLayout({
         xtitle: "Years relative to retraction",
         ytitle: "log(1 + citations) — coefficient",
         shapes: [hline(0, "#999"), vline(0, "#7a1c1c")],
         annotations: [vlabel(0, "Retracted", "#7a1c1c")],
-      }), plotConfig());
+      }), plotCfg());
     }
   }
 
   function baseLayout(opts) {
     const lay = {
       margin: { l: 56, r: 56, t: 18, b: 44 },
-      paper_bgcolor: "#fdfcfa",
-      plot_bgcolor: "#fdfcfa",
+      paper_bgcolor: "#fdfcfa", plot_bgcolor: "#fdfcfa",
       font: { family: "Inter, system-ui, sans-serif", size: 12, color: "#1d1d1f" },
       xaxis: { title: opts.xtitle, gridcolor: "#eee", zerolinecolor: "#ddd" },
       yaxis: { title: opts.ytitle, gridcolor: "#eee", zerolinecolor: "#ddd" },
@@ -190,11 +204,7 @@
     if (opts.y2) lay.yaxis2 = opts.y2;
     return lay;
   }
-
-  function plotConfig() {
-    return { displayModeBar: false, responsive: true };
-  }
-
+  function plotCfg() { return { displayModeBar: false, responsive: true }; }
   function vline(x, color) {
     return { type: "line", x0: x, x1: x, y0: 0, y1: 1, yref: "paper",
              line: { color, width: 1.5, dash: "dash" } };
@@ -208,55 +218,57 @@
              font: { color, size: 11 }, xanchor: "left", yanchor: "bottom" };
   }
 
-  // ----------------------------------------------------------- browse
+  // ---------------------------------------------------------------- browse
   function setupBrowse() {
     // decade filter
     const years = STATE.index.map(s => s.retraction_year).filter(Boolean);
     const minY = Math.min(...years), maxY = Math.max(...years);
-    const sel = $("#filter-decade");
-    if (isFinite(minY) && isFinite(maxY)) {
-      const startDecade = Math.floor(minY / 10) * 10;
-      const endDecade = Math.floor(maxY / 10) * 10;
-      for (let d = endDecade; d >= startDecade; d -= 10) {
+    const selDec = $("#filter-decade");
+    if (isFinite(minY)) {
+      for (let d = Math.floor(maxY / 10) * 10; d >= Math.floor(minY / 10) * 10; d -= 10) {
         const o = document.createElement("option");
-        o.value = String(d);
-        o.textContent = `${d}s`;
-        sel.appendChild(o);
+        o.value = String(d); o.textContent = `${d}s`;
+        selDec.appendChild(o);
       }
     }
+    // reason filter — union of all reasons across index
+    const reasons = new Set();
+    for (const s of STATE.index) {
+      for (const r of (s.reasons || [])) { if (r) reasons.add(r); }
+    }
+    const selReason = $("#filter-reason");
+    [...reasons].sort().forEach(r => {
+      const o = document.createElement("option");
+      o.value = r;
+      o.textContent = r.length > 50 ? r.slice(0, 47) + "…" : r;
+      selReason.appendChild(o);
+    });
 
-    $("#search-input").addEventListener("input", debounce(() => {
-      STATE.page = 0; renderTable();
-    }, 200));
-    $("#sort-by").addEventListener("change", () => { STATE.page = 0; renderTable(); });
-    $("#filter-decade").addEventListener("change", () => { STATE.page = 0; renderTable(); });
+    const refilter = debounce(() => { STATE.page = 0; renderTable(); }, 200);
+    ["#search-input", "#filter-reason", "#sort-by", "#filter-decade"]
+      .forEach(sel => $(sel).addEventListener(sel === "#search-input" ? "input" : "change", refilter));
 
     $("#modal-close").addEventListener("click", closeModal);
-    $("#study-modal").addEventListener("click", (e) => {
-      if (e.target.id === "study-modal") closeModal();
-    });
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeModal();
-    });
+    $("#study-modal").addEventListener("click", e => { if (e.target.id === "study-modal") closeModal(); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
   }
 
   function applyFilters() {
-    const q = $("#search-input").value.trim().toLowerCase();
+    const q      = ($("#search-input").value || "").trim().toLowerCase();
+    const reason = $("#filter-reason").value;
     const decade = $("#filter-decade").value;
-    const sort = $("#sort-by").value;
+    const sort   = $("#sort-by").value;
 
     let rows = STATE.index;
-    if (q) {
-      rows = rows.filter(r =>
-        (r.title || "").toLowerCase().includes(q) ||
-        (r.author || "").toLowerCase().includes(q) ||
-        (r.journal || "").toLowerCase().includes(q) ||
-        (r.doi || "").toLowerCase().includes(q)
-      );
-    }
+    if (q) rows = rows.filter(r =>
+      (r.title   || "").toLowerCase().includes(q) ||
+      (r.author  || "").toLowerCase().includes(q) ||
+      (r.journal || "").toLowerCase().includes(q) ||
+      (r.doi     || "").toLowerCase().includes(q));
+    if (reason) rows = rows.filter(r => (r.reasons || []).includes(reason));
     if (decade) {
       const d = parseInt(decade, 10);
-      rows = rows.filter(r => r.retraction_year && r.retraction_year >= d && r.retraction_year < d + 10);
+      rows = rows.filter(r => r.retraction_year >= d && r.retraction_year < d + 10);
     }
     const cmp = {
       n_citations:    (a, b) => (b.n_citations || 0) - (a.n_citations || 0),
@@ -265,160 +277,85 @@
       orig_year_desc: (a, b) => (b.year || 0) - (a.year || 0),
       orig_year_asc:  (a, b) => (a.year || 9999) - (b.year || 9999),
     }[sort] || ((a, b) => (b.n_citations || 0) - (a.n_citations || 0));
-    rows = rows.slice().sort(cmp);
-    STATE.filtered = rows;
+    STATE.filtered = rows.slice().sort(cmp);
   }
 
   function renderTable() {
     applyFilters();
     const tbody = $("#originals-table tbody");
     tbody.innerHTML = "";
-
     const total = STATE.filtered.length;
     const pages = Math.max(1, Math.ceil(total / STATE.pageSize));
     if (STATE.page >= pages) STATE.page = 0;
-    const start = STATE.page * STATE.pageSize;
-    const slice = STATE.filtered.slice(start, start + STATE.pageSize);
-
+    const slice = STATE.filtered.slice(STATE.page * STATE.pageSize, (STATE.page + 1) * STATE.pageSize);
     const frag = document.createDocumentFragment();
     for (const r of slice) {
       const tr = document.createElement("tr");
       tr.dataset.doi = r.doi;
       tr.innerHTML = `
         <td>
-          <span class="row-title">${escapeHtml(r.title || "(untitled)")}</span>
-          <span class="row-meta">${escapeHtml(r.author || "")}${r.doi ? ` · <a href="https://doi.org/${escapeAttr(r.doi)}" target="_blank" onclick="event.stopPropagation()">${escapeHtml(r.doi)}</a>` : ""}</span>
+          <span class="row-title">${esc(r.title || "(untitled)")}</span>
+          <span class="row-meta">${esc(r.author || "")}${r.doi
+            ? ` · <a href="https://doi.org/${escA(r.doi)}" target="_blank" onclick="event.stopPropagation()">${esc(r.doi)}</a>`
+            : ""}</span>
         </td>
         <td class="num">${r.year ?? ""}</td>
         <td class="num">${r.retraction_year ?? ""}</td>
-        <td>${escapeHtml(r.journal || "")}</td>
-        <td class="num">${fmt.format(r.n_citations || 0)}</td>
-      `;
+        <td>${esc(r.journal || "")}</td>
+        <td class="num">${fmt.format(r.n_citations || 0)}</td>`;
       tr.addEventListener("click", () => openModal(r.doi));
       frag.appendChild(tr);
     }
     tbody.appendChild(frag);
-
-    renderPagination(pages, total);
+    renderPager("pagination", pages, total, STATE.page,
+      p => { STATE.page = p; renderTable(); window.scrollTo({ top: $("#browse").offsetTop - 20, behavior: "smooth" }); });
   }
 
-  function renderPagination(pages, total) {
-    const p = $("#pagination");
-    p.innerHTML = "";
-    const mk = (label, page, opts = {}) => {
-      const b = document.createElement("button");
-      b.textContent = label;
-      if (opts.active) b.classList.add("active");
-      if (opts.disabled) b.disabled = true;
-      b.addEventListener("click", () => { STATE.page = page; renderTable(); window.scrollTo({ top: $("#browse").offsetTop - 20, behavior: "smooth" }); });
-      return b;
-    };
-    p.appendChild(mk("‹ Prev", Math.max(0, STATE.page - 1), { disabled: STATE.page === 0 }));
-    const win = 2;
-    const lo = Math.max(0, STATE.page - win);
-    const hi = Math.min(pages - 1, STATE.page + win);
-    if (lo > 0) {
-      p.appendChild(mk("1", 0));
-      if (lo > 1) {
-        const s = document.createElement("span");
-        s.className = "info"; s.textContent = "…";
-        p.appendChild(s);
-      }
-    }
-    for (let i = lo; i <= hi; i++) p.appendChild(mk(String(i + 1), i, { active: i === STATE.page }));
-    if (hi < pages - 1) {
-      if (hi < pages - 2) {
-        const s = document.createElement("span");
-        s.className = "info"; s.textContent = "…";
-        p.appendChild(s);
-      }
-      p.appendChild(mk(String(pages), pages - 1));
-    }
-    p.appendChild(mk("Next ›", Math.min(pages - 1, STATE.page + 1), { disabled: STATE.page === pages - 1 }));
-
-    const info = document.createElement("span");
-    info.className = "info";
-    const start = total === 0 ? 0 : STATE.page * STATE.pageSize + 1;
-    const end = Math.min(total, (STATE.page + 1) * STATE.pageSize);
-    info.textContent = `${fmt.format(start)}–${fmt.format(end)} of ${fmt.format(total)}`;
-    p.appendChild(info);
-  }
-
-  // ----------------------------------------------------------- modal
+  // ---------------------------------------------------------------- modal
   function openModal(doi) {
     const s = STATE.studies[doi];
     if (!s) return;
-    const body = $("#modal-body");
-    const reasonTags = (s.reasons || []).map(r => `<span class="tag">${escapeHtml(r)}</span>`).join("");
-    body.innerHTML = `
-      <h2 class="modal-title">${escapeHtml(s.title || "(untitled)")}</h2>
+    const tags = (s.reasons || []).map(r => `<span class="tag">${esc(r)}</span>`).join("");
+    $("#modal-body").innerHTML = `
+      <h2 class="modal-title">${esc(s.title || "(untitled)")}</h2>
       <p class="modal-meta">
-        ${escapeHtml(s.author || "")} ${s.year ? `· ${s.year}` : ""}
-        ${s.journal ? ` · <em>${escapeHtml(s.journal)}</em>` : ""}
-        ${s.doi ? `<br><a href="https://doi.org/${escapeAttr(s.doi)}" target="_blank">${escapeHtml(s.doi)}</a>` : ""}
-        ${s.retraction_doi ? ` · retraction notice: <a href="https://doi.org/${escapeAttr(s.retraction_doi)}" target="_blank">${escapeHtml(s.retraction_doi)}</a>` : ""}
+        ${esc(s.author || "")}${s.year ? ` · ${s.year}` : ""}
+        ${s.journal ? ` · <em>${esc(s.journal)}</em>` : ""}
+        ${s.doi ? `<br><a href="https://doi.org/${escA(s.doi)}" target="_blank">${esc(s.doi)}</a>` : ""}
+        ${s.retraction_doi ? ` · retraction: <a href="https://doi.org/${escA(s.retraction_doi)}" target="_blank">${esc(s.retraction_doi)}</a>` : ""}
       </p>
-      ${reasonTags ? `<div class="modal-section-title">Reason(s) for retraction</div><div class="modal-tags">${reasonTags}</div>` : ""}
+      ${tags ? `<div class="modal-section-title">Reason(s) for retraction</div><div class="modal-tags">${tags}</div>` : ""}
       <div class="modal-section-title">Citations per year</div>
       <div id="modal-plot" class="modal-plot"></div>
-      <p class="muted small" style="margin-top:.6rem">
-        Retracted in <strong>${s.retraction_year ?? "?"}</strong>. Total citations:
-        <strong>${fmt.format(s.n_citations || 0)}</strong>.
-      </p>
-    `;
+      <p class="muted small" style="margin-top:.5rem">
+        Retracted in <strong>${s.retraction_year ?? "?"}</strong>. Total citations: <strong>${fmt.format(s.n_citations || 0)}</strong>.
+      </p>`;
     $("#study-modal").hidden = false;
 
     const tl = s.timeline || [];
-    if (tl.length) {
-      const years = tl.map(t => t.year);
-      const counts = tl.map(t => t.n);
-      const minY = Math.min(...years);
-      const maxY = Math.max(...years);
-      // fill gaps
-      const xs = [];
-      const ys = [];
-      for (let y = minY; y <= maxY; y++) {
-        xs.push(y);
-        const e = tl.find(t => t.year === y);
-        ys.push(e ? e.n : 0);
-      }
-      const colors = xs.map(y => {
-        if (s.retraction_year && y > s.retraction_year) return "#b9442f";
-        if (s.retraction_year && y === s.retraction_year) return "#7a1c1c";
-        return "#888";
-      });
-      const trace = {
-        x: xs, y: ys, type: "bar",
-        marker: { color: colors },
-        hovertemplate: "%{x}<br>%{y} citations<extra></extra>",
-      };
-      const shapes = [];
-      const annotations = [];
-      if (s.retraction_year) {
-        shapes.push({
-          type: "line", x0: s.retraction_year, x1: s.retraction_year,
-          y0: 0, y1: 1, yref: "paper",
-          line: { color: "#7a1c1c", width: 2, dash: "dash" },
-        });
-        annotations.push({
-          x: s.retraction_year, y: 1, yref: "paper",
-          text: `retracted ${s.retraction_year}`,
-          showarrow: false, font: { color: "#7a1c1c", size: 11 },
-          xanchor: "left", yanchor: "bottom",
-        });
-      }
-      Plotly.newPlot("modal-plot", [trace], {
-        margin: { l: 48, r: 16, t: 18, b: 40 },
-        paper_bgcolor: "#fff", plot_bgcolor: "#fff",
-        font: { family: "Inter, sans-serif", size: 12 },
-        xaxis: { title: "Year", gridcolor: "#eee" },
-        yaxis: { title: "Citations", gridcolor: "#eee" },
-        shapes, annotations,
-        showlegend: false,
-      }, { displayModeBar: false, responsive: true });
-    } else {
-      $("#modal-plot").innerHTML = `<p class="muted">No citations on record.</p>`;
-    }
+    if (!tl.length) { $("#modal-plot").innerHTML = `<p class="muted">No citations on record.</p>`; return; }
+
+    const minY = Math.min(...tl.map(t => t.year));
+    const maxY = Math.max(...tl.map(t => t.year));
+    const xs = [], ys = [];
+    const lookup = Object.fromEntries(tl.map(t => [t.year, t.n]));
+    for (let y = minY; y <= maxY; y++) { xs.push(y); ys.push(lookup[y] || 0); }
+
+    const ry = s.retraction_year;
+    const colors = xs.map(y => y > ry ? "#b9442f" : y === ry ? "#7a1c1c" : "#aaa");
+
+    Plotly.newPlot("modal-plot", [{ x: xs, y: ys, type: "bar",
+      marker: { color: colors },
+      hovertemplate: "%{x}: %{y} citations<extra></extra>" }], {
+      margin: { l: 48, r: 16, t: 16, b: 40 },
+      paper_bgcolor: "#fff", plot_bgcolor: "#fff",
+      font: { family: "Inter, sans-serif", size: 12 },
+      xaxis: { title: "Year", gridcolor: "#eee" },
+      yaxis: { title: "Citations", gridcolor: "#eee" },
+      showlegend: false,
+      shapes: ry ? [vline(ry, "#7a1c1c")] : [],
+      annotations: ry ? [vlabel(ry, `retracted ${ry}`, "#7a1c1c")] : [],
+    }, { displayModeBar: false, responsive: true });
   }
 
   function closeModal() {
@@ -427,18 +364,134 @@
     if (mp && window.Plotly) Plotly.purge(mp);
   }
 
-  // ----------------------------------------------------------- util
-  function debounce(fn, ms) {
-    let h; return function (...a) {
-      clearTimeout(h); h = setTimeout(() => fn.apply(this, a), ms);
+  // ---------------------------------------------------------------- trends tab
+  function renderTrends() {
+    safe("trendsByYear",    renderTrendsByYear);
+    safe("trendsReasons",   renderTrendsReasons);
+    safe("trendsJournals",  () => renderTrendsList("journals", 0));
+    safe("trendsAuthors",   () => renderTrendsList("authors",  0));
+  }
+
+  function renderTrendsByYear() {
+    const counter = {};
+    for (const s of STATE.index) {
+      const y = s.retraction_year;
+      if (y) counter[y] = (counter[y] || 0) + 1;
+    }
+    const years = Object.keys(counter).map(Number).sort((a, b) => a - b);
+    Plotly.newPlot("plot-by-year", [{
+      x: years, y: years.map(y => counter[y]),
+      type: "bar",
+      marker: { color: "#7a1c1c" },
+      hovertemplate: "%{x}: %{y} retractions<extra></extra>",
+    }], {
+      margin: { l: 56, r: 16, t: 16, b: 44 },
+      paper_bgcolor: "#fdfcfa", plot_bgcolor: "#fdfcfa",
+      font: { family: "Inter, sans-serif", size: 12, color: "#1d1d1f" },
+      xaxis: { title: "Year", gridcolor: "#eee" },
+      yaxis: { title: "Retractions", gridcolor: "#eee" },
+      showlegend: false,
+    }, plotCfg());
+  }
+
+  function renderTrendsReasons() {
+    const top = (STATE.meta && STATE.meta.top_reasons) ? STATE.meta.top_reasons : [];
+    if (!top.length) { $("#plot-reasons").textContent = "No reason data available."; return; }
+    const labels = top.map(r => r[0]).reverse();
+    const counts = top.map(r => r[1]).reverse();
+    Plotly.newPlot("plot-reasons", [{
+      x: counts, y: labels, type: "bar", orientation: "h",
+      marker: { color: "#7a1c1c" },
+      hovertemplate: "%{y}: %{x}<extra></extra>",
+    }], {
+      margin: { l: 340, r: 32, t: 16, b: 44 },
+      paper_bgcolor: "#fdfcfa", plot_bgcolor: "#fdfcfa",
+      font: { family: "Inter, sans-serif", size: 12, color: "#1d1d1f" },
+      xaxis: { title: "Count (papers can have multiple reasons)", gridcolor: "#eee" },
+      yaxis: { gridcolor: "#eee", tickfont: { size: 11 } },
+      showlegend: false,
+    }, plotCfg());
+  }
+
+  function getTopJournals() {
+    return (STATE.meta && STATE.meta.top_journals) ? STATE.meta.top_journals : [];
+  }
+
+  function getTopAuthors() {
+    if (TRENDS.topAuthors) return TRENDS.topAuthors;
+    const counter = {};
+    for (const s of STATE.index) {
+      const raw = (s.author || "").replace(/,?\s*…\s*\([^)]+\)$/, "").trim();
+      const names = raw.split(";").map(n => n.trim()).filter(n => n && n !== "…");
+      for (const name of names) { counter[name] = (counter[name] || 0) + 1; }
+    }
+    TRENDS.topAuthors = Object.entries(counter).sort((a, b) => b[1] - a[1]).slice(0, 100);
+    return TRENDS.topAuthors;
+  }
+
+  function renderTrendsList(type, page) {
+    const rows   = type === "journals" ? getTopJournals() : getTopAuthors();
+    const label  = type === "journals" ? "Journal" : "Author";
+    const wrapId = `trends-${type}-wrap`;
+    const pagerId= `trend-${type.slice(0,6)}-pager`;
+    const pages  = Math.max(1, Math.ceil(rows.length / TRENDS.pageSize));
+    const slice  = rows.slice(page * TRENDS.pageSize, (page + 1) * TRENDS.pageSize);
+
+    if (type === "journals") TRENDS.journalPage = page;
+    else                     TRENDS.authorPage  = page;
+
+    const tbody = slice.map((r, i) => `
+      <tr>
+        <td class="num muted">${page * TRENDS.pageSize + i + 1}</td>
+        <td>${esc(r[0])}</td>
+        <td class="num">${fmt.format(r[1])}</td>
+      </tr>`).join("");
+
+    document.getElementById(wrapId).innerHTML = `
+      <table class="trends-table">
+        <thead><tr><th class="num">#</th><th>${label}</th><th class="num">Retractions</th></tr></thead>
+        <tbody>${tbody}</tbody>
+      </table>`;
+
+    renderPager(pagerId, pages, rows.length, page,
+      p => renderTrendsList(type, p));
+  }
+
+  // ---------------------------------------------------------------- shared pager
+  function renderPager(id, pages, total, current, onPage) {
+    const p = document.getElementById(id);
+    if (!p) return;
+    p.innerHTML = "";
+    const mk = (label, page, opts = {}) => {
+      const b = document.createElement("button");
+      b.textContent = label;
+      if (opts.active)   b.classList.add("active");
+      if (opts.disabled) b.disabled = true;
+      b.addEventListener("click", () => onPage(page));
+      return b;
     };
+    p.appendChild(mk("‹ Prev", Math.max(0, current - 1), { disabled: current === 0 }));
+    const lo = Math.max(0, current - 2), hi = Math.min(pages - 1, current + 2);
+    if (lo > 0) { p.appendChild(mk("1", 0)); if (lo > 1) { const s = document.createElement("span"); s.className = "info"; s.textContent = "…"; p.appendChild(s); } }
+    for (let i = lo; i <= hi; i++) p.appendChild(mk(String(i + 1), i, { active: i === current }));
+    if (hi < pages - 1) { if (hi < pages - 2) { const s = document.createElement("span"); s.className = "info"; s.textContent = "…"; p.appendChild(s); } p.appendChild(mk(String(pages), pages - 1)); }
+    p.appendChild(mk("Next ›", Math.min(pages - 1, current + 1), { disabled: current === pages - 1 }));
+    const info = document.createElement("span");
+    info.className = "info";
+    const start = total === 0 ? 0 : current * STATE.pageSize + 1;
+    info.textContent = `${fmt.format(total)} total`;
+    p.appendChild(info);
   }
-  function escapeHtml(s) {
-    return String(s || "").replace(/[&<>"']/g, c => ({
-      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-    })[c]);
+
+  // ---------------------------------------------------------------- utils
+  function debounce(fn, ms) {
+    let h; return function (...a) { clearTimeout(h); h = setTimeout(() => fn.apply(this, a), ms); };
   }
-  function escapeAttr(s) { return escapeHtml(s); }
+  function esc(s) {
+    return String(s || "").replace(/[&<>"']/g, c =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  }
+  function escA(s) { return esc(s); }
 
   document.addEventListener("DOMContentLoaded", init);
 })();
