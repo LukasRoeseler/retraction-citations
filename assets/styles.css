@@ -243,22 +243,25 @@ table#originals-table{
 .pagination button:disabled{ opacity:.4; cursor:default }
 .pagination .info{ font-size:.85rem; color: var(--muted); margin: 0 .5rem }
 
-/* --- ext-badges (ISSN, ORCID) --- */
-.ext-badge{
-  display: inline-block;
-  font-size: .68rem; font-weight: 700;
-  padding: .05rem .35rem;
-  border-radius: 4px;
-  border: 1px solid currentColor;
-  vertical-align: middle;
-  margin-left: .25rem;
-  text-decoration: none !important;
-  opacity: .75;
-  transition: opacity .12s;
-  color: var(--accent-soft);
+/* --- trends search row --- */
+.trends-search-row{
+  display: flex; align-items: center; gap: .75rem;
+  margin-bottom: .75rem;
 }
-.ext-badge:hover{ opacity: 1 }
-.ext-badge.orcid{ color: #a6ce39 }
+.trends-search{
+  font: inherit;
+  padding: .45rem .7rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  flex: 0 1 280px;
+}
+.trends-search-count{
+  font-size: .82rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
 
 /* --- about --- */
 .about-body ul{ padding-left: 1.2rem }

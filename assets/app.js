@@ -437,49 +437,55 @@
 
   function renderTrendsList(type, page) {
     const isJournal = type === "journals";
-    const rows   = isJournal ? getTopJournals() : getTopAuthors();
-    const wrapId = `trends-${type}-wrap`;
-    const pagerId= `trend-${isJournal ? "journal" : "author"}-pager`;
-    const pages  = Math.max(1, Math.ceil(rows.length / TRENDS.pageSize));
-    const slice  = rows.slice(page * TRENDS.pageSize, (page + 1) * TRENDS.pageSize);
+    const allRows = isJournal ? getTopJournals() : getTopAuthors();
+    const searchId = `trends-${type}-search`;
+    const wrapId   = `trends-${type}-wrap`;
+    const pagerId  = `trend-${isJournal ? "journal" : "author"}-pager`;
 
-    if (isJournal) TRENDS.journalPage = page;
-    else           TRENDS.authorPage  = page;
+    // Apply search filter if the input exists and has a value
+    const searchEl = document.getElementById(searchId);
+    const q = searchEl ? searchEl.value.trim().toLowerCase() : "";
+    const rows = q ? allRows.filter(r => r[0].toLowerCase().includes(q)) : allRows;
+
+    const pages  = Math.max(1, Math.ceil(rows.length / TRENDS.pageSize));
+    const safePage = Math.min(page, pages - 1);
+    const slice  = rows.slice(safePage * TRENDS.pageSize, (safePage + 1) * TRENDS.pageSize);
+
+    if (isJournal) TRENDS.journalPage = safePage;
+    else           TRENDS.authorPage  = safePage;
 
     const tbody = slice.map((r, i) => {
       const rank = page * TRENDS.pageSize + i + 1;
       const name = r[0], count = r[1];
-      let cell;
-      if (isJournal) {
-        const oaHref  = `https://openalex.org/journals?search=${encodeURIComponent(name)}`;
-        const issnHref= `https://portal.issn.org/resource/ISSN/search?search[q]=${encodeURIComponent(name)}`;
-        cell = `<a href="${oaHref}" target="_blank" rel="noopener">${esc(name)}</a>`
-             + ` <a class="ext-badge" href="${issnHref}" target="_blank" rel="noopener" title="Search ISSN Portal">ISSN</a>`;
-      } else {
-        const orcidHref = `https://orcid.org/orcid-search/search?searchQuery=${encodeURIComponent(name)}`;
-        cell = `<a href="${orcidHref}" target="_blank" rel="noopener">${esc(name)}</a>`
-             + ` <a class="ext-badge orcid" href="${orcidHref}" target="_blank" rel="noopener" title="Search ORCID">iD</a>`;
-      }
       return `<tr>
         <td class="num muted">${rank}</td>
-        <td>${cell}</td>
+        <td>${esc(name)}</td>
         <td class="num">${fmt.format(count)}</td>
       </tr>`;
     }).join("");
 
-    const header = isJournal
-      ? `<tr><th class="num">#</th><th>Journal</th><th class="num">Retractions</th></tr>`
-      : `<tr><th class="num">#</th><th>Author</th><th class="num">Retractions</th></tr>`;
+    const colLabel = isJournal ? "Journal" : "Author";
+    const placeholder = isJournal ? "Search journals…" : "Search authors…";
+    const currentQ = searchEl ? searchEl.value : "";
 
     document.getElementById(wrapId).innerHTML = `
+      <div class="trends-search-row">
+        <input id="${searchId}" type="search" class="trends-search" placeholder="${placeholder}" value="${esc(currentQ)}">
+        <span class="trends-search-count">${fmt.format(rows.length)} ${rows.length === allRows.length ? "" : `of ${fmt.format(allRows.length)} `}${colLabel.toLowerCase()}s</span>
+      </div>
       <div class="table-wrap">
         <table class="trends-table">
-          <thead>${header}</thead>
+          <thead><tr><th class="num">#</th><th>${colLabel}</th><th class="num">Retractions</th></tr></thead>
           <tbody>${tbody}</tbody>
         </table>
       </div>`;
 
-    renderPager(pagerId, pages, rows.length, page,
+    // Re-attach search listener after innerHTML replacement
+    document.getElementById(searchId).addEventListener("input", debounce(() => {
+      renderTrendsList(type, 0);
+    }, 180));
+
+    renderPager(pagerId, pages, rows.length, safePage,
       p => renderTrendsList(type, p));
   }
 
