@@ -55,14 +55,13 @@
 
   function renderAll() {
     $("#global-loading").hidden = true;
-    $("#aggregate").hidden = false;
-    $("#browse").hidden = false;
     safe("renderKPIs",      renderKPIs);
     safe("renderFooter",    renderFooter);
+    safe("setupTabs",       setupTabs);
+    // Citations tab: render eagerly so it's ready when user clicks
     safe("renderAggregate", renderAggregate);
     safe("setupBrowse",     setupBrowse);
     safe("renderTable",     renderTable);
-    safe("setupTabs",       setupTabs);
   }
 
   function safe(label, fn) {
@@ -90,24 +89,31 @@
   }
 
   // ---------------------------------------------------------------- tabs
+  const ALL_TABS = ["about", "citations", "trends"];
+
+  function showTab(tab) {
+    document.querySelectorAll(".tab-btn").forEach(b => {
+      const active = b.dataset.tab === tab;
+      b.classList.toggle("active", active);
+      b.setAttribute("aria-selected", String(active));
+    });
+    ALL_TABS.forEach(t => {
+      const el = document.getElementById("tab-" + t);
+      if (el) el.hidden = (t !== tab);
+    });
+    if (tab === "trends" && !TRENDS.rendered) {
+      TRENDS.rendered = true;
+      safe("renderTrends", renderTrends);
+    }
+  }
+
   function setupTabs() {
     document.querySelectorAll(".tab-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach(b => {
-          b.classList.remove("active");
-          b.setAttribute("aria-selected", "false");
-        });
-        btn.classList.add("active");
-        btn.setAttribute("aria-selected", "true");
-        const tab = btn.dataset.tab;
-        $("#tab-citations").hidden = (tab !== "citations");
-        $("#tab-trends").hidden    = (tab !== "trends");
-        if (tab === "trends" && !TRENDS.rendered) {
-          TRENDS.rendered = true;
-          safe("renderTrends", renderTrends);
-        }
-      });
+      btn.addEventListener("click", () => showTab(btn.dataset.tab));
     });
+    // honour #hash in URL (e.g. #citations, #trends)
+    const hash = window.location.hash.replace("#", "");
+    if (ALL_TABS.includes(hash)) showTab(hash);
   }
 
   // ---------------------------------------------------------------- aggregate plots
@@ -430,28 +436,48 @@
   }
 
   function renderTrendsList(type, page) {
-    const rows   = type === "journals" ? getTopJournals() : getTopAuthors();
-    const label  = type === "journals" ? "Journal" : "Author";
+    const isJournal = type === "journals";
+    const rows   = isJournal ? getTopJournals() : getTopAuthors();
     const wrapId = `trends-${type}-wrap`;
-    const pagerId= `trend-${type.slice(0,6)}-pager`;
+    const pagerId= `trend-${isJournal ? "journal" : "author"}-pager`;
     const pages  = Math.max(1, Math.ceil(rows.length / TRENDS.pageSize));
     const slice  = rows.slice(page * TRENDS.pageSize, (page + 1) * TRENDS.pageSize);
 
-    if (type === "journals") TRENDS.journalPage = page;
-    else                     TRENDS.authorPage  = page;
+    if (isJournal) TRENDS.journalPage = page;
+    else           TRENDS.authorPage  = page;
 
-    const tbody = slice.map((r, i) => `
-      <tr>
-        <td class="num muted">${page * TRENDS.pageSize + i + 1}</td>
-        <td>${esc(r[0])}</td>
-        <td class="num">${fmt.format(r[1])}</td>
-      </tr>`).join("");
+    const tbody = slice.map((r, i) => {
+      const rank = page * TRENDS.pageSize + i + 1;
+      const name = r[0], count = r[1];
+      let cell;
+      if (isJournal) {
+        const oaHref  = `https://openalex.org/journals?search=${encodeURIComponent(name)}`;
+        const issnHref= `https://portal.issn.org/resource/ISSN/search?search[q]=${encodeURIComponent(name)}`;
+        cell = `<a href="${oaHref}" target="_blank" rel="noopener">${esc(name)}</a>`
+             + ` <a class="ext-badge" href="${issnHref}" target="_blank" rel="noopener" title="Search ISSN Portal">ISSN</a>`;
+      } else {
+        const orcidHref = `https://orcid.org/orcid-search/search?searchQuery=${encodeURIComponent(name)}`;
+        cell = `<a href="${orcidHref}" target="_blank" rel="noopener">${esc(name)}</a>`
+             + ` <a class="ext-badge orcid" href="${orcidHref}" target="_blank" rel="noopener" title="Search ORCID">iD</a>`;
+      }
+      return `<tr>
+        <td class="num muted">${rank}</td>
+        <td>${cell}</td>
+        <td class="num">${fmt.format(count)}</td>
+      </tr>`;
+    }).join("");
+
+    const header = isJournal
+      ? `<tr><th class="num">#</th><th>Journal</th><th class="num">Retractions</th></tr>`
+      : `<tr><th class="num">#</th><th>Author</th><th class="num">Retractions</th></tr>`;
 
     document.getElementById(wrapId).innerHTML = `
-      <table class="trends-table">
-        <thead><tr><th class="num">#</th><th>${label}</th><th class="num">Retractions</th></tr></thead>
-        <tbody>${tbody}</tbody>
-      </table>`;
+      <div class="table-wrap">
+        <table class="trends-table">
+          <thead>${header}</thead>
+          <tbody>${tbody}</tbody>
+        </table>
+      </div>`;
 
     renderPager(pagerId, pages, rows.length, page,
       p => renderTrendsList(type, p));
