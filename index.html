@@ -30,8 +30,7 @@
       retraction of a paper affects subsequent citations.
     </p>
     <div class="kpi-row">
-      <div class="kpi"><div class="kpi-num" id="kpi-total">—</div><div class="kpi-label">Retractions in dataset</div></div>
-      <div class="kpi"><div class="kpi-num" id="kpi-with-cit">—</div><div class="kpi-label">Citations fetched</div></div>
+      <div class="kpi"><div class="kpi-num" id="kpi-total">—</div><div class="kpi-label">Papers in dataset<br><span class="kpi-sub">retractions, EOCs &amp; notices</span></div></div>
       <div class="kpi"><div class="kpi-num" id="kpi-total-cit">—</div><div class="kpi-label">Total citations</div></div>
       <div class="kpi"><div class="kpi-num kpi-date" id="kpi-last-updated">—</div><div class="kpi-label">Last fetched</div></div>
     </div>
@@ -97,6 +96,11 @@
   <!-- =================== TAB: CITATIONS =================== -->
   <div id="tab-citations" hidden>
 
+    <div class="filter-bar">
+      <span class="filter-label">Record type:</span>
+      <div class="nature-chips" id="nature-chips-citations"></div>
+    </div>
+
     <section id="aggregate" class="card">
       <div class="card-header">Aggregate impact of retractions</div>
       <div class="card-body">
@@ -158,8 +162,13 @@
   <!-- =================== TAB: TRENDS =================== -->
   <div id="tab-trends" hidden>
 
+    <div class="filter-bar">
+      <span class="filter-label">Record type:</span>
+      <div class="nature-chips" id="nature-chips-trends"></div>
+    </div>
+
     <section class="card">
-      <div class="card-header">Retractions by year</div>
+      <div class="card-header">Papers by year</div>
       <div class="card-body">
         <div id="plot-by-year" class="plot"></div>
       </div>

@@ -45,6 +45,34 @@ a:hover{text-decoration:underline}
 
 .container{max-width:1180px; margin:0 auto; padding:0 24px}
 
+/* --- KPI sub-label --- */
+.kpi-sub{ font-size:.72rem; color: var(--muted); font-weight:400; letter-spacing:.02em }
+
+/* --- nature filter bar --- */
+.filter-bar{
+  display: flex; align-items: center; gap: .6rem;
+  padding: .65rem 0 .5rem;
+  flex-wrap: wrap;
+}
+.filter-label{ font-size: .82rem; color: var(--muted); font-weight: 500 }
+.nature-chips{ display: flex; gap: .35rem; flex-wrap: wrap }
+.chip{
+  font: inherit; font-size: .82rem; font-weight: 500;
+  padding: .3rem .8rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  background: #fff; color: var(--ink-soft);
+  cursor: pointer; transition: all .12s;
+}
+.chip:hover{ border-color: var(--accent); color: var(--accent) }
+.chip.active{
+  background: var(--accent); color: #fff;
+  border-color: var(--accent);
+}
+
+/* --- att note (small inline note) --- */
+.att-note{ font-size:.82rem; color: var(--muted) }
+
 /* --- tabs bar --- */
 .tabs-bar{
   background: var(--surface);
