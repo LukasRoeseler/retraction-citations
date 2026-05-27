@@ -1,30 +1,30 @@
 {
-  "last_updated": "2026-05-26T09:10:08.463984+00:00",
-  "n_retractions_total": 61280,
-  "n_with_doi": 61280,
-  "n_with_citations": 61280,
-  "n_citations_total": 1050550,
+  "last_updated": "2026-05-27T06:56:03.289048+00:00",
+  "n_retractions_total": 61290,
+  "n_with_doi": 61290,
+  "n_with_citations": 61290,
+  "n_citations_total": 1050689,
   "partial_run": false,
   "top_reasons": [
     [
       "Investigation by Journal/Publisher",
-      29060
+      29070
     ],
     [
       "Unreliable Results and/or Conclusions",
-      20518
+      20527
     ],
     [
       "Investigation by Third Party",
-      17079
+      17082
     ],
     [
       "Concerns/Issues about Data",
-      14688
+      14691
     ],
     [
       "Concerns/Issues about Referencing/Attributions",
-      14523
+      14529
     ],
     [
       "Paper Mill",
@@ -44,7 +44,7 @@
     ],
     [
       "Concerns/Issues about Results and/or Conclusions",
-      9356
+      9359
     ],
     [
       "Computer-Aided Content or Computer-Generated Content",
@@ -72,11 +72,11 @@
     ],
     [
       "Concerns/Issues about Image",
-      3062
+      3063
     ],
     [
       "Objections by Author(s)",
-      2960
+      2966
     ],
     [
       "Author Unresponsive",
