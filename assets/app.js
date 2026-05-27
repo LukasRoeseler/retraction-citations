@@ -13,7 +13,7 @@
     filtered: [],
     page: 0,
     pageSize: 25,
-    natureFilter: "",          // "", "Retraction", "Expression of Concern", "Editorial Notice"
+    natureFilter: "",          // "", "Retraction", "Expression of concern", "Correction", "Reinstatement"
   };
 
   const TRENDS = {
@@ -98,10 +98,11 @@
 
   // ---------------------------------------------------------------- nature filter
   const NATURE_OPTIONS = [
-    { value: "",                      label: "All" },
-    { value: "Retraction",            label: "Retraction" },
-    { value: "Expression of Concern", label: "Expression of Concern" },
-    { value: "Editorial Notice",      label: "Editorial Notice" },
+    { value: "",                       label: "All" },
+    { value: "Retraction",             label: "Retraction" },
+    { value: "Expression of concern",  label: "Expression of Concern" },
+    { value: "Correction",             label: "Correction" },
+    { value: "Reinstatement",          label: "Reinstatement" },
   ];
 
   function setupNatureFilter(barId, onChange) {
@@ -167,7 +168,7 @@
   function getFilteredIndex() {
     const nf = STATE.natureFilter;
     if (!nf) return STATE.index;
-    return STATE.index.filter(s => (s.nature || "").includes(nf));
+    return STATE.index.filter(s => (s.nature || "") === nf);
   }
 
   // Recompute descriptive mean-citations from study timelines for the filtered set.
@@ -323,7 +324,7 @@
     const nf     = STATE.natureFilter;
 
     let rows = STATE.index;
-    if (nf)     rows = rows.filter(r => (r.nature  || "").includes(nf));
+    if (nf)     rows = rows.filter(r => (r.nature  || "") === nf);
     if (q)      rows = rows.filter(r =>
       (r.title   || "").toLowerCase().includes(q) ||
       (r.author  || "").toLowerCase().includes(q) ||
