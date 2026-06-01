@@ -1,30 +1,30 @@
 {
-  "last_updated": "2026-05-27T06:56:03.289048+00:00",
-  "n_retractions_total": 61290,
-  "n_with_doi": 61290,
-  "n_with_citations": 61290,
-  "n_citations_total": 1050689,
+  "last_updated": "2026-06-01T09:04:28.803700+00:00",
+  "n_retractions_total": 61321,
+  "n_with_doi": 61321,
+  "n_with_citations": 61321,
+  "n_citations_total": 1050945,
   "partial_run": false,
   "top_reasons": [
     [
       "Investigation by Journal/Publisher",
-      29070
+      29099
     ],
     [
       "Unreliable Results and/or Conclusions",
-      20527
+      20554
     ],
     [
       "Investigation by Third Party",
-      17082
+      17086
     ],
     [
       "Concerns/Issues about Data",
-      14691
+      14696
     ],
     [
       "Concerns/Issues about Referencing/Attributions",
-      14529
+      14546
     ],
     [
       "Paper Mill",
@@ -36,7 +36,7 @@
     ],
     [
       "Compromised Peer Review",
-      10831
+      10840
     ],
     [
       "Notice - Limited or No Information",
@@ -44,7 +44,7 @@
     ],
     [
       "Concerns/Issues about Results and/or Conclusions",
-      9359
+      9360
     ],
     [
       "Computer-Aided Content or Computer-Generated Content",
@@ -52,15 +52,15 @@
     ],
     [
       "Date of Article and/or Notice Unknown",
-      6645
+      6659
     ],
     [
       "Duplication of/in Image",
-      4909
+      4912
     ],
     [
       "Breach of Policy by Author",
-      4719
+      4720
     ],
     [
       "Removed",
@@ -68,23 +68,23 @@
     ],
     [
       "Investigation by Company/Institution",
-      3319
+      3321
     ],
     [
       "Concerns/Issues about Image",
-      3063
+      3068
     ],
     [
       "Objections by Author(s)",
-      2966
+      2978
     ],
     [
       "Author Unresponsive",
-      2909
+      2911
     ],
     [
       "Duplication of/in Article",
-      2837
+      2838
     ]
   ],
   "top_journals": [
@@ -146,7 +146,7 @@
     ],
     [
       "Soft Computing",
-      544
+      553
     ],
     [
       "Journal of Sensors",
