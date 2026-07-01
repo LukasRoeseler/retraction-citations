@@ -1,30 +1,30 @@
 {
-  "last_updated": "2026-06-01T09:04:28.803700+00:00",
-  "n_retractions_total": 61321,
-  "n_with_doi": 61321,
-  "n_with_citations": 61321,
-  "n_citations_total": 1050945,
+  "last_updated": "2026-07-01T07:44:29.415549+00:00",
+  "n_retractions_total": 61733,
+  "n_with_doi": 61733,
+  "n_with_citations": 61733,
+  "n_citations_total": 1056064,
   "partial_run": false,
   "top_reasons": [
     [
       "Investigation by Journal/Publisher",
-      29099
+      29456
     ],
     [
       "Unreliable Results and/or Conclusions",
-      20554
+      20809
     ],
     [
       "Investigation by Third Party",
-      17086
-    ],
-    [
-      "Concerns/Issues about Data",
-      14696
+      17123
     ],
     [
       "Concerns/Issues about Referencing/Attributions",
-      14546
+      14747
+    ],
+    [
+      "Concerns/Issues about Data",
+      14714
     ],
     [
       "Paper Mill",
@@ -32,59 +32,59 @@
     ],
     [
       "Concerns/Issues about Peer Review",
-      11109
+      11205
     ],
     [
       "Compromised Peer Review",
-      10840
+      10916
     ],
     [
       "Notice - Limited or No Information",
-      9495
+      9496
     ],
     [
       "Concerns/Issues about Results and/or Conclusions",
-      9360
+      9371
     ],
     [
       "Computer-Aided Content or Computer-Generated Content",
-      9073
+      9088
     ],
     [
       "Date of Article and/or Notice Unknown",
-      6659
+      6682
     ],
     [
       "Duplication of/in Image",
-      4912
+      4940
     ],
     [
       "Breach of Policy by Author",
-      4720
+      4723
     ],
     [
       "Removed",
-      3391
+      3399
     ],
     [
       "Investigation by Company/Institution",
-      3321
-    ],
-    [
-      "Concerns/Issues about Image",
-      3068
+      3325
     ],
     [
       "Objections by Author(s)",
-      2978
+      3106
+    ],
+    [
+      "Concerns/Issues about Image",
+      3080
     ],
     [
       "Author Unresponsive",
-      2911
+      2937
     ],
     [
       "Duplication of/in Article",
-      2838
+      2855
     ]
   ],
   "top_journals": [
@@ -94,7 +94,7 @@
     ],
     [
       "PLoS One",
-      1399
+      1400
     ],
     [
       "2011 International Conference on E-Business and E-Government (ICEE)",
@@ -137,6 +137,10 @@
       755
     ],
     [
+      "Soft Computing",
+      642
+    ],
+    [
       "E3S Web of Conferences",
       580
     ],
@@ -145,12 +149,12 @@
       574
     ],
     [
-      "Soft Computing",
-      553
-    ],
-    [
       "Journal of Sensors",
       464
+    ],
+    [
+      "Heliyon",
+      440
     ],
     [
       "The Journal of Biological Chemistry",
@@ -163,10 +167,6 @@
     [
       "Journal of Ambient Intelligence and Humanized Computing",
       432
-    ],
-    [
-      "Arabian Journal of Geosciences",
-      418
     ]
   ],
   "event_window": [
