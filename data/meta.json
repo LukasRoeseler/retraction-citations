@@ -1,90 +1,90 @@
 {
-  "last_updated": "2026-08-01T06:41:58.997669+00:00",
-  "n_retractions_total": 62479,
-  "n_with_doi": 62479,
-  "n_with_citations": 62479,
-  "n_citations_total": 1071897,
+  "last_updated": "2026-09-01T09:06:32.818510+00:00",
+  "n_retractions_total": 63044,
+  "n_with_doi": 63044,
+  "n_with_citations": 63044,
+  "n_citations_total": 1078876,
   "partial_run": false,
   "top_reasons": [
     [
       "Investigation by Journal/Publisher",
-      29963
+      30375
     ],
     [
       "Unreliable Results and/or Conclusions",
-      21113
+      21437
     ],
     [
       "Investigation by Third Party",
-      17213
+      17343
     ],
     [
       "Concerns/Issues about Referencing/Attributions",
-      14977
+      15134
     ],
     [
       "Concerns/Issues about Data",
-      14796
+      14848
     ],
     [
       "Paper Mill",
-      11654
+      11655
     ],
     [
       "Concerns/Issues about Peer Review",
-      11335
+      11446
     ],
     [
       "Compromised Peer Review",
-      10980
+      11152
     ],
     [
       "Notice - Limited or No Information",
-      9520
+      9522
     ],
     [
       "Concerns/Issues about Results and/or Conclusions",
-      9389
+      9404
     ],
     [
       "Computer-Aided Content or Computer-Generated Content",
-      9117
+      9144
     ],
     [
       "Date of Article and/or Notice Unknown",
-      6739
+      6745
     ],
     [
       "Duplication of/in Image",
-      5092
+      5169
     ],
     [
       "Breach of Policy by Author",
-      4722
-    ],
-    [
-      "Removed",
-      3405
+      4717
     ],
     [
       "Objections by Author(s)",
-      3337
+      3552
+    ],
+    [
+      "Removed",
+      3407
     ],
     [
       "Investigation by Company/Institution",
-      3337
+      3341
     ],
     [
       "Concerns/Issues about Image",
-      3154
+      3189
     ],
     [
       "Author Unresponsive",
-      2993
+      3048
     ],
     [
-      "Duplication of/in Article",
-      2880
+      "Rogue Editor",
+      2911
     ]
   ],
   "top_journals": [
@@ -133,16 +133,16 @@
       798
     ],
     [
+      "Soft Computing",
+      786
+    ],
+    [
       "Evidence-Based Complementary and Alternative Medicine",
       755
     ],
     [
-      "Soft Computing",
-      693
-    ],
-    [
       "Heliyon",
-      609
+      672
     ],
     [
       "E3S Web of Conferences",
