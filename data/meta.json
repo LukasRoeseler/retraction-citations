@@ -1,62 +1,62 @@
 {
-  "last_updated": "2026-09-01T09:06:32.818510+00:00",
-  "n_retractions_total": 63044,
-  "n_with_doi": 63044,
-  "n_with_citations": 63044,
-  "n_citations_total": 1078876,
+  "last_updated": "2026-10-01T10:40:45.124305+00:00",
+  "n_retractions_total": 63790,
+  "n_with_doi": 63790,
+  "n_with_citations": 63790,
+  "n_citations_total": 1092603,
   "partial_run": false,
   "top_reasons": [
     [
       "Investigation by Journal/Publisher",
-      30375
+      30766
     ],
     [
       "Unreliable Results and/or Conclusions",
-      21437
+      21654
     ],
     [
       "Investigation by Third Party",
-      17343
+      17554
     ],
     [
       "Concerns/Issues about Referencing/Attributions",
-      15134
+      15228
     ],
     [
       "Concerns/Issues about Data",
-      14848
+      14931
     ],
     [
       "Paper Mill",
-      11655
+      11656
     ],
     [
       "Concerns/Issues about Peer Review",
-      11446
+      11500
     ],
     [
       "Compromised Peer Review",
-      11152
+      11365
     ],
     [
       "Notice - Limited or No Information",
-      9522
+      9530
     ],
     [
       "Concerns/Issues about Results and/or Conclusions",
-      9404
+      9496
     ],
     [
       "Computer-Aided Content or Computer-Generated Content",
-      9144
+      9251
     ],
     [
       "Date of Article and/or Notice Unknown",
-      6745
+      6760
     ],
     [
       "Duplication of/in Image",
-      5169
+      5301
     ],
     [
       "Breach of Policy by Author",
@@ -64,37 +64,37 @@
     ],
     [
       "Objections by Author(s)",
-      3552
+      3809
     ],
     [
       "Removed",
-      3407
+      3425
     ],
     [
       "Investigation by Company/Institution",
-      3341
+      3347
     ],
     [
       "Concerns/Issues about Image",
-      3189
+      3264
     ],
     [
       "Author Unresponsive",
-      3048
+      3122
     ],
     [
       "Rogue Editor",
-      2911
+      3067
     ]
   ],
   "top_journals": [
     [
       "Journal of Intelligent & Fuzzy Systems",
-      1607
+      1608
     ],
     [
       "PLoS One",
-      1401
+      1577
     ],
     [
       "2011 International Conference on E-Business and E-Government (ICEE)",
@@ -142,7 +142,7 @@
     ],
     [
       "Heliyon",
-      672
+      694
     ],
     [
       "E3S Web of Conferences",
@@ -157,16 +157,16 @@
       464
     ],
     [
+      "Scientific Reports",
+      444
+    ],
+    [
       "The Journal of Biological Chemistry",
       435
     ],
     [
       "Journal of Environmental and Public Health",
       434
-    ],
-    [
-      "Journal of Ambient Intelligence and Humanized Computing",
-      432
     ]
   ],
   "event_window": [
