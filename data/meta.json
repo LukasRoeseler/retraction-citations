@@ -1,100 +1,100 @@
 {
-  "last_updated": "2026-10-01T10:40:45.124305+00:00",
-  "n_retractions_total": 63790,
-  "n_with_doi": 63790,
-  "n_with_citations": 63790,
-  "n_citations_total": 1092603,
+  "last_updated": "2026-11-01T10:57:06.368531+00:00",
+  "n_retractions_total": 64504,
+  "n_with_doi": 64504,
+  "n_with_citations": 64504,
+  "n_citations_total": 1102679,
   "partial_run": false,
   "top_reasons": [
     [
       "Investigation by Journal/Publisher",
-      30766
+      31316
     ],
     [
       "Unreliable Results and/or Conclusions",
-      21654
+      21866
     ],
     [
       "Investigation by Third Party",
-      17554
+      17900
     ],
     [
       "Concerns/Issues about Referencing/Attributions",
-      15228
+      15321
     ],
     [
       "Concerns/Issues about Data",
-      14931
+      15110
     ],
     [
       "Paper Mill",
-      11656
-    ],
-    [
-      "Concerns/Issues about Peer Review",
-      11500
+      11660
     ],
     [
       "Compromised Peer Review",
-      11365
+      11640
     ],
     [
-      "Notice - Limited or No Information",
-      9530
+      "Concerns/Issues about Peer Review",
+      11528
     ],
     [
       "Concerns/Issues about Results and/or Conclusions",
-      9496
+      9637
+    ],
+    [
+      "Notice - Limited or No Information",
+      9534
     ],
     [
       "Computer-Aided Content or Computer-Generated Content",
-      9251
+      9402
     ],
     [
       "Date of Article and/or Notice Unknown",
-      6760
+      6798
     ],
     [
       "Duplication of/in Image",
-      5301
+      5370
     ],
     [
       "Breach of Policy by Author",
-      4717
+      4719
     ],
     [
       "Objections by Author(s)",
-      3809
+      3907
     ],
     [
       "Removed",
-      3425
-    ],
-    [
-      "Investigation by Company/Institution",
-      3347
-    ],
-    [
-      "Concerns/Issues about Image",
-      3264
+      3430
     ],
     [
       "Author Unresponsive",
-      3122
+      3397
+    ],
+    [
+      "Investigation by Company/Institution",
+      3360
+    ],
+    [
+      "Concerns/Issues about Image",
+      3316
     ],
     [
       "Rogue Editor",
-      3067
+      3293
     ]
   ],
   "top_journals": [
     [
       "Journal of Intelligent & Fuzzy Systems",
-      1608
+      1609
     ],
     [
       "PLoS One",
-      1577
+      1578
     ],
     [
       "2011 International Conference on E-Business and E-Government (ICEE)",
@@ -106,7 +106,7 @@
     ],
     [
       "Journal of Healthcare Engineering",
-      1074
+      1075
     ],
     [
       "Computational and Mathematical Methods in Medicine",
@@ -118,7 +118,7 @@
     ],
     [
       "BioMed Research International",
-      951
+      952
     ],
     [
       "Security and Communication Networks",
@@ -134,15 +134,15 @@
     ],
     [
       "Soft Computing",
-      786
+      794
     ],
     [
       "Evidence-Based Complementary and Alternative Medicine",
-      755
+      757
     ],
     [
       "Heliyon",
-      694
+      695
     ],
     [
       "E3S Web of Conferences",
@@ -153,20 +153,20 @@
       574
     ],
     [
+      "Microprocessors and Microsystems",
+      470
+    ],
+    [
       "Journal of Sensors",
       464
     ],
     [
       "Scientific Reports",
-      444
+      447
     ],
     [
       "The Journal of Biological Chemistry",
-      435
-    ],
-    [
-      "Journal of Environmental and Public Health",
-      434
+      436
     ]
   ],
   "event_window": [
